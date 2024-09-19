@@ -1,10 +1,10 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, RTE, Select } from "../index";
 import appwriteService from "../../appwrite/config";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import authService from "../../appwrite/auth";
+import { useSelector, useDispatch } from "react-redux";
+import { imageid } from "../../store/authSlice"; //uselater 
 
 export default function PostForm({ post }) {
     const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
@@ -15,41 +15,54 @@ export default function PostForm({ post }) {
             status: post?.status || "active",
         },
     });
-
     const navigate = useNavigate();
+    const dispatch = useDispatch(); //uselater
     const userData = useSelector((state) => state.auth.userData);
+    const [featureImage, setFeatureImage] = useState(post?.featureImage || null);
 
     const submit = async (data) => {
-        if (post) {
-            const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null;
+        try {
+            if (post) {
+                let updatedFeatureImage = featureImage;
+                if (data.image && data.image[0]) {
+                    const file = await appwriteService.uploadFile(data.image[0]);
+                    if (file) {
+                        updatedFeatureImage = file.$id;
+                        if (post.featureImage) {
+                            await appwriteService.deleteFile(post.featureImage);
+                        }
+                    }
+                }
 
-            if (file) {
-                appwriteService.deleteFile(post.featuredImage);
-            }
+                const dbPost = await appwriteService.updatePost(post.$id, {
+                    ...data,
+                    featureImage: updatedFeatureImage,
+                });
 
-            const dbPost = await appwriteService.updatePost(post.$id, {
-                ...data,
-                featuredImage: file ? file.$id : undefined,
-            });
+                if (dbPost) {
+                    navigate(`/post/${dbPost.$id}`);
+                }
+            } else {
+                let newFeatureImage = null;
+                if (data.image && data.image[0]) {
+                    const file = await appwriteService.uploadFile(data.image[0]);
+                    if (file) {
+                        newFeatureImage = file.$id;
+                    }
+                }
 
-            if (dbPost) {
-                navigate(`/post/${dbPost.$id}`);
-            }
-        } else {
-            const file = await appwriteService.uploadFile(data.image[0]);
-            const user=await authService.getCurrentUser();
-
-            if (file && user) {
-                const fileId = file.$id;
-                const id=user.$id;
-                data.featureImage = fileId;
-                const dbPost = await appwriteService.createPost({ ...data, userId: id,featureImage: fileId });
-
+                const dbPost = await appwriteService.createPost({ 
+                    ...data,
+                    userId: userData.$id,
+                    featureImage: newFeatureImage,
+                });
 
                 if (dbPost) {
                     navigate(`/post/${dbPost.$id}`);
                 }
             }
+        } catch (error) {
+            console.error("Error in submit:", error);
         }
     };
 
@@ -64,7 +77,7 @@ export default function PostForm({ post }) {
         return "";
     }, []);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const subscription = watch((value, { name }) => {
             if (name === "title") {
                 setValue("slug", slugTransform(value.title), { shouldValidate: true });
@@ -102,11 +115,11 @@ export default function PostForm({ post }) {
                     accept="image/png, image/jpg, image/jpeg, image/gif"
                     {...register("image", { required: !post })}
                 />
-                {post && (
+                {featureImage && (
                     <div className="w-full mb-4">
                         <img
-                            src={appwriteService.getFilePreview(data.featureImage)}
-                            alt={post.title}
+                            src={appwriteService.getFilePreview(featureImage)}
+                            alt="Featured"
                             className="rounded-lg"
                         />
                     </div>
