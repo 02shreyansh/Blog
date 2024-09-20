@@ -25,3 +25,6 @@ function Logo({ width = '150px' }) {
 
 export default Logo;
 
+
+export default Logo;
+
