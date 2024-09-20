@@ -1,39 +1,27 @@
-import React, { useEffect ,useState} from 'react'
+import React from 'react'
+import Card from '@mui/material/Card';
+import CardMedia from '@mui/material/CardMedia';
+import CardActionArea from '@mui/material/CardActionArea';
 import appwriteService from "../appwrite/config"
 import {Link} from 'react-router-dom'
 // import {useSelector} from 'react-redux'//laterUse
 
-function PostCard({$id, title, featuredImage}) {
-  const currentDate = new Date();
-  const monthIndex = currentDate.getMonth();
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  const monthName = months[monthIndex];
-  const day = currentDate.getDate();
+export default function ActionAreaCard({$id, title, featuredImage}) {
   return (
-    <Link to={`/post/${$id}`}>
-        <div className="rounded overflow-hidden shadow-lg">
-          <div className="relative">
-            <img className="w-full"
-              src={featuredImage && appwriteService.getFilePreview(featuredImage) || ""} alt={title}/>
-            <div
-                className="hover:bg-transparent transition duration-300 absolute bottom-0 top-0 right-0 left-0 bg-gray-900 opacity-25">
-            </div>
-            <div
-                className="text-sm absolute top-0 right-0 bg-indigo-600 px-4 text-white rounded-full h-16 w-16 flex flex-col items-center justify-center mt-3 mr-3 hover:bg-white hover:text-indigo-600 transition duration-500 ease-in-out">
-                <span class="font-bold">{day}</span>
-                <small>{monthName}</small>
-            </div>
+    <Link  to={`/post/${$id}`}>
+      <Card >
+        <CardActionArea >
+          <CardMedia
+            component="img"
+            className="lg:w-full lg:h-64 h-48 w-40 md:w-full md:h-69 object-cover rounded-xl border-2 border-white"
+            image={featuredImage && appwriteService.getFilePreview(featuredImage) || ""}
+            alt={title}
+          />
+          <div
+            className="hover:bg-transparent transition duration-300 absolute bottom-0 top-0 right-0 left-0 bg-gray-900 opacity-25">
           </div>
-          <div className="px-6 py-4">
-            <p 
-                className="font-semibold text-lg inline-block text-indigo-600 transition duration-500 text-lg-center ease-in-out">{title}
-            </p>
-          </div>
-        </div>
+        </CardActionArea>
+      </Card>
     </Link>
-  )
+  );
 }
-export default PostCard
