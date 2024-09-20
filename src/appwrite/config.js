@@ -8,8 +8,8 @@ export class Service{
     
     constructor(){
         this.client
-        .setEndpoint("https://cloud.appwrite.io/v1")
-        .setProject("66e85739000216ae4c28");
+        .setEndpoint(conf.appwriteUrl)
+        .setProject(conf.appwriteProjectId);
         this.databases = new Databases(this.client);
         this.bucket = new Storage(this.client);
     }
@@ -17,8 +17,8 @@ export class Service{
     async createPost({title,slug, content, featureImage, status, userId}){
         try {
             return await this.databases.createDocument(
-                "66e85812000bc62123fd",
-                "66e85847001f99416017",
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
                 slug,
                 {
                     title,
@@ -36,8 +36,8 @@ export class Service{
     async updatePost(slug, {title, content, featureImage, status}){
         try {
             return await this.databases.updateDocument(
-                "66e85812000bc62123fd",
-                "66e85847001f99416017",
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
                 slug,
                 {
                     title,
@@ -54,8 +54,8 @@ export class Service{
     async deletePost(slug){
         try {
             await this.databases.deleteDocument(
-                "66e85812000bc62123fd",
-                "66e85847001f99416017",
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
                 slug
             
             )
@@ -69,8 +69,8 @@ export class Service{
     async getPost(slug){
         try {
             return await this.databases.getDocument(
-                "66e85812000bc62123fd",
-                "66e85847001f99416017",
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
                 slug
             )
         } catch (error) {
@@ -82,8 +82,8 @@ export class Service{
     async getPosts(queries = [Query.equal("status", "active")]){
         try {
             return await this.databases.listDocuments(
-                "66e85812000bc62123fd",
-                "66e85847001f99416017",
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
                 queries,
             )
         } catch (error) {
@@ -97,7 +97,7 @@ export class Service{
     async uploadFile(file){
         try {
             return await this.bucket.createFile(
-               "66e85a44003015b1074c",
+                conf.appwriteBucketId,
                 ID.unique(),
                 file
             )
@@ -110,7 +110,7 @@ export class Service{
     async deleteFile(fileId){
         try {
             await this.bucket.deleteFile(
-                "66e85a44003015b1074c",
+                conf.appwriteBucketId,
                 fileId
             )
             return true
@@ -122,7 +122,7 @@ export class Service{
 
     getFilePreview(fileId){
         return this.bucket.getFilePreview(
-           "66e85a44003015b1074c",
+            conf.appwriteBucketId,
             fileId
         )
     }
