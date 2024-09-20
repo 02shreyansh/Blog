@@ -1,7 +1,7 @@
 import React, { useEffect ,useState} from 'react'
 import appwriteService from "../appwrite/config"
 import {Link} from 'react-router-dom'
-import {useSelector} from 'react-redux'//laterUse
+// import {useSelector} from 'react-redux'//laterUse
 
 function PostCard({$id, title, featuredImage}) {
   const currentDate = new Date();
