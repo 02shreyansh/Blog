@@ -4,7 +4,7 @@ import { Button, Input, RTE, Select } from "../index";
 import appwriteService from "../../appwrite/config";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { imageid } from "../../store/authSlice"; //uselater 
+import { imageid } from "../../store/AuthSlice"; //uselater 
 
 export default function PostForm({ post }) {
     const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
